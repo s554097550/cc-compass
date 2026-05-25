@@ -1,0 +1,13 @@
+{
+  "name": "cc-compass",
+  "owner": {
+    "name": "s554097550"
+  },
+  "plugins": [
+    {
+      "name": "cc-compass",
+      "description": "Smart on-demand guide for Claude Code — type /cc-compass:cc-compass to get contextual suggestions.",
+      "source": "."
+    }
+  ]
+}
