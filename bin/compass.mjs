@@ -13,7 +13,14 @@ async function main() {
   let hits = await runRules(ctx, cfg);
 
   const need = cfg.fill_to_n - hits.length;
-  if (cfg.advisor.enabled && (cfg.advisor.always_call || need > 0)) {
+  const shouldCallAdvisor = cfg.advisor.enabled && (cfg.advisor.always_call || need > 0);
+
+  if (shouldCallAdvisor && !cfg.advisor.auth_token) {
+    process.stderr.write(
+      '[cc-compass] advisor needs ANTHROPIC_AUTH_TOKEN (or advisor.auth_token in config). ' +
+      'Set advisor.enabled=false for rules-only mode.\n'
+    );
+  } else if (shouldCallAdvisor) {
     try {
       const extra = await askAdvisor(ctx, hits, cfg, Math.max(need, 0));
       const seen = new Set(hits.map(h => h.id));

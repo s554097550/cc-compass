@@ -103,7 +103,7 @@ ln -s ~/code/cc-compass ~/.claude/plugins/cc-compass
   "locale": "auto",
   "advisor": {
     "enabled": true,
-    "model": "claude-haiku-4-5",
+    "model": "claude-haiku-4-5-20251001",
     "base_url": null,
     "auth_token": null,
     "always_call": false,
@@ -120,7 +120,7 @@ ln -s ~/code/cc-compass ~/.claude/plugins/cc-compass
 | `fill_to_n` | `5` | 最多展示几条建议 |
 | `locale` | `auto` | 文案语言：`zh-CN` / `en` / `auto`（按系统 LANG） |
 | `advisor.enabled` | `true` | 是否在规则不足时调判官模型补足 |
-| `advisor.model` | `claude-haiku-4-5` | 判官模型 |
+| `advisor.model` | `claude-haiku-4-5-20251001` | 判官模型 |
 | `advisor.base_url` | `null` → 继承 `ANTHROPIC_BASE_URL` | API 端点，可填第三方兼容端点 |
 | `advisor.auth_token` | `null` → 继承 `ANTHROPIC_AUTH_TOKEN` | API key |
 | `advisor.always_call` | `false` | 即使规则已凑够也调判官（更智能但更费 token） |
@@ -155,6 +155,18 @@ cc-compass 只在你主动 `/cc-compass` 时运行，**没有任何后台 hook**
 - 环境变量、API key 之外的任何 secret
 - 文件内容（除非你在对话里贴了出来）
 - 完整路径、用户名、机器名
+
+---
+
+## 排查
+
+| 现象 | 可能原因 | 处理 |
+|------|---------|------|
+| `[cc-compass] advisor needs ANTHROPIC_AUTH_TOKEN` | 判官没拿到 API key | 设置 `ANTHROPIC_AUTH_TOKEN`，或在配置里填 `advisor.auth_token`，或 `advisor.enabled: false` 切纯规则 |
+| `advisor HTTP 400: model not found` | 默认模型 id 在你的端点上未注册 | 在配置里指定你端点支持的 `advisor.model` |
+| `advisor response was not valid JSON: ...` | 判官返回了散文不是 JSON | 换更强的模型，或再跑一次（多半偶发） |
+| `/cc-compass` 后只显示"暂无建议" | 规则未命中且判官被禁/未授权 | 多给点上下文，或开判官，或提个 issue 说明本应命中的场景 |
+| 出了建议但回 `1` 主 Claude 不执行 | skill 输出被隐藏或 assistant 没保留机器块 | 再跑一次 `/cc-compass`，确认 assistant 按 SKILL.md 执行 |
 
 ---
 

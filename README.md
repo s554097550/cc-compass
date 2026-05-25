@@ -103,7 +103,7 @@ Reply:
   "locale": "auto",
   "advisor": {
     "enabled": true,
-    "model": "claude-haiku-4-5",
+    "model": "claude-haiku-4-5-20251001",
     "base_url": null,
     "auth_token": null,
     "always_call": false,
@@ -120,7 +120,7 @@ Reply:
 | `fill_to_n` | `5` | Max suggestions shown |
 | `locale` | `auto` | `zh-CN` / `en` / `auto` |
 | `advisor.enabled` | `true` | Call model to fill remaining slots when rules don't cover enough |
-| `advisor.model` | `claude-haiku-4-5` | Advisor model |
+| `advisor.model` | `claude-haiku-4-5-20251001` | Advisor model |
 | `advisor.base_url` | `null` → inherits `ANTHROPIC_BASE_URL` | Use a compatible third-party endpoint if you want |
 | `advisor.auth_token` | `null` → inherits `ANTHROPIC_AUTH_TOKEN` | API key |
 | `advisor.always_call` | `false` | Call the advisor even when rules already filled N (smarter but pricier) |
@@ -152,6 +152,18 @@ In **hybrid / model-first mode**, the advisor receives:
 - The scenario catalog (`scenarios.yaml`)
 
 It does **not** send: env vars (beyond what's needed for the API call), file contents, full paths, usernames, hostnames.
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `[cc-compass] advisor needs ANTHROPIC_AUTH_TOKEN` | No API key visible to the advisor | Set `ANTHROPIC_AUTH_TOKEN`, or `advisor.auth_token` in config, or `advisor.enabled: false` for rules-only mode |
+| `advisor HTTP 400: model not found` | The default model id isn't routable on your endpoint | Set `advisor.model` to a model your endpoint accepts |
+| `advisor response was not valid JSON: ...` | The advisor returned prose instead of JSON | Try a stronger model, or rerun — usually transient |
+| "No suggestions" right after `/cc-compass` | Rules didn't fire and advisor was disabled / unauthorized | Provide more context in your prompt, enable the advisor, or open an issue with the situation that should have matched |
+| Suggestion list shown but Claude doesn't execute reply `1` | The skill output was hidden or the assistant didn't keep the machine-readable block | Re-run `/cc-compass` and ensure your assistant follows `SKILL.md` |
 
 ---
 
