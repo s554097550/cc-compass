@@ -1,0 +1,33 @@
+name: 💡 新场景建议 / New scenario suggestion
+description: 推荐一个 cc-compass 应该识别的新场景
+labels: ["scenario"]
+body:
+  - type: textarea
+    attributes:
+      label: 用户的什么输入应当触发它？/ What user input should trigger it?
+      description: 一段或几段真实的用户 prompt 示例
+      placeholder: |
+        - "这段代码改完了，看看怎么样"
+        - "写好了，没问题吧"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 应该推荐什么 / What should be suggested
+      description: cmd 类填命令（如 /simplify、EnterWorktree）；action 类填标题和步骤
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 为什么这时候推荐 / Why is this the right moment
+      description: 用一句话解释——这是要展示给用户的 reason
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: 类型 / Type
+      options:
+        - cmd
+        - action
+    validations:
+      required: true

@@ -1,0 +1,37 @@
+name: 🐛 Bug 反馈 / Bug report
+description: 报告 cc-compass 不符合预期的行为
+labels: ["bug"]
+body:
+  - type: textarea
+    attributes:
+      label: 你做了什么 / What you did
+      description: 你在 Claude Code 里输入了什么？看到什么提示？
+      placeholder: |
+        输入：/cc-compass
+        上下文：刚改完 auth 模块，准备提交……
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 你期望什么 / What you expected
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 实际发生 / What actually happened
+      description: 复制 stdout / stderr 原文
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: 配置 / Config
+      description: 你的 cc-compass.config.json（去掉 auth_token）；或写"默认"
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: 环境 / Environment
+      description: 操作系统、Claude Code 版本、Node 版本
+      placeholder: "macOS 14, Claude Code x.y.z, Node 20"
+    validations:
+      required: false
