@@ -1,13 +1,25 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "cc-compass",
+  "description": "On-demand Claude Code guide — type /cc-compass:cc-compass for contextual suggestions.",
   "owner": {
     "name": "s554097550"
   },
   "plugins": [
     {
       "name": "cc-compass",
-      "description": "Smart on-demand guide for Claude Code — type /cc-compass:cc-compass to get contextual suggestions.",
-      "source": "."
+      "description": "Smart on-demand guide for Claude Code — analyzes situation and returns N suggestions with reasons.",
+      "author": {
+        "name": "cc-compass contributors"
+      },
+      "category": "productivity",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/s554097550/cc-compass.git",
+        "path": ".",
+        "ref": "main"
+      },
+      "homepage": "https://github.com/s554097550/cc-compass"
     }
   ]
 }
