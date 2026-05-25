@@ -7,8 +7,8 @@ argument-hint: [skip|extra context]
 
 ```bash
 CC_COMPASS_CWD="$(pwd)" \
-CC_COMPASS_PROMPT="<把用户本轮的求助语原文填这里>" \
-CC_COMPASS_RECENT="<把最近 2-3 轮的用户/助手发言精简摘要填这里，每轮之间用 \n---\n 分隔>" \
+CC_COMPASS_PROMPT="{{用户本轮求助语原文}}" \
+CC_COMPASS_RECENT="{{最近 2-3 轮的用户/助手发言精简摘要，每轮之间用 \n---\n 分隔}}" \
 node ${CLAUDE_PLUGIN_ROOT}/bin/compass.mjs
 ```
 
@@ -16,7 +16,7 @@ node ${CLAUDE_PLUGIN_ROOT}/bin/compass.mjs
 - `CC_COMPASS_RECENT`：当前对话最近 2-3 轮的关键摘要（不必全文）。例：`user: 想把 auth 模块重构一下\n---\nassistant: 我看了下 auth/ 有 5 个文件\n---\nuser: 然后准备提交`
 - `CC_COMPASS_CWD`：当前工作目录。
 
-注意 shell 转义：把双引号 `"` 写成 `\"`，换行用真实的 `\n`（在 shell 里两个字符）。
+注意 shell 转义：双引号写成 `\"`，换行用字面 `\n`（shell 里两个字符）。占位符 `{{...}}` 替换成实际内容时去掉花括号。
 
 ## 展示规则
 
