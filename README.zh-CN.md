@@ -103,7 +103,7 @@ ln -s ~/code/cc-compass ~/.claude/plugins/cc-compass
   "locale": "auto",
   "advisor": {
     "enabled": true,
-    "model": "claude-haiku-4-5-20251001",
+    "model": null,
     "base_url": null,
     "auth_token": null,
     "always_call": false,
@@ -120,7 +120,7 @@ ln -s ~/code/cc-compass ~/.claude/plugins/cc-compass
 | `fill_to_n` | `5` | 最多展示几条建议 |
 | `locale` | `auto` | 文案语言：`zh-CN` / `en` / `auto`（按系统 LANG） |
 | `advisor.enabled` | `true` | 是否在规则不足时调判官模型补足 |
-| `advisor.model` | `claude-haiku-4-5-20251001` | 判官模型 |
+| `advisor.model` | `null`（启用判官时**必填**） | 设成你端点支持的模型 id，如官方 API 用 `claude-haiku-4-5-20251001` |
 | `advisor.base_url` | `null` → 继承 `ANTHROPIC_BASE_URL` | API 端点，可填第三方兼容端点 |
 | `advisor.auth_token` | `null` → 继承 `ANTHROPIC_AUTH_TOKEN` | API key |
 | `advisor.always_call` | `false` | 即使规则已凑够也调判官（更智能但更费 token） |

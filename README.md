@@ -103,7 +103,7 @@ Reply:
   "locale": "auto",
   "advisor": {
     "enabled": true,
-    "model": "claude-haiku-4-5-20251001",
+    "model": null,
     "base_url": null,
     "auth_token": null,
     "always_call": false,
@@ -120,7 +120,7 @@ Reply:
 | `fill_to_n` | `5` | Max suggestions shown |
 | `locale` | `auto` | `zh-CN` / `en` / `auto` |
 | `advisor.enabled` | `true` | Call model to fill remaining slots when rules don't cover enough |
-| `advisor.model` | `claude-haiku-4-5-20251001` | Advisor model |
+| `advisor.model` | `null` (required when advisor is on) | Set to a model id your endpoint accepts, e.g. `claude-haiku-4-5-20251001` for the Anthropic API |
 | `advisor.base_url` | `null` → inherits `ANTHROPIC_BASE_URL` | Use a compatible third-party endpoint if you want |
 | `advisor.auth_token` | `null` → inherits `ANTHROPIC_AUTH_TOKEN` | API key |
 | `advisor.always_call` | `false` | Call the advisor even when rules already filled N (smarter but pricier) |

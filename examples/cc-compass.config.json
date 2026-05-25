@@ -4,7 +4,7 @@
   "locale": "auto",
   "advisor": {
     "enabled": true,
-    "model": "claude-haiku-4-5-20251001",
+    "model": null,
     "base_url": null,
     "auth_token": null,
     "always_call": false,

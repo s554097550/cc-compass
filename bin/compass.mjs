@@ -15,7 +15,12 @@ async function main() {
   const need = cfg.fill_to_n - hits.length;
   const shouldCallAdvisor = cfg.advisor.enabled && (cfg.advisor.always_call || need > 0);
 
-  if (shouldCallAdvisor && !cfg.advisor.auth_token) {
+  if (shouldCallAdvisor && !cfg.advisor.model) {
+    process.stderr.write(
+      '[cc-compass] advisor needs a model id (set advisor.model in config or CC_COMPASS_MODEL). ' +
+      'Set advisor.enabled=false for rules-only mode.\n'
+    );
+  } else if (shouldCallAdvisor && !cfg.advisor.auth_token) {
     process.stderr.write(
       '[cc-compass] advisor needs ANTHROPIC_AUTH_TOKEN (or advisor.auth_token in config). ' +
       'Set advisor.enabled=false for rules-only mode.\n'
