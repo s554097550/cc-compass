@@ -1,6 +1,6 @@
 ---
 description: Claude Code 智能向导。分析当前对话情境，给出 N 条带原因的命令或操作建议。
-argument-hint: "[skip|extra context]"
+argument-hint: [skip|extra context]
 ---
 
 运行下面的 Bash 命令获取本次建议。**你必须按下面要求传入环境变量**——不要直接裸跑 `node bin/compass.mjs`，否则规则匹配不到关键词，会返回空建议。
