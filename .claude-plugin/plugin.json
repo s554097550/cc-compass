@@ -1,0 +1,10 @@
+{
+  "name": "cc-compass",
+  "description": "Smart on-demand guide for Claude Code — type /cc-compass to get contextual command and action suggestions with explanations.",
+  "version": "0.1.0",
+  "author": {
+    "name": "cc-compass contributors"
+  },
+  "homepage": "https://github.com/s554097550/cc-compass",
+  "license": "MIT"
+}

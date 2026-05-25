@@ -1,0 +1,15 @@
+{
+  "aliases": ["cc-compass", "compass", "向导"],
+  "fill_to_n": 5,
+  "locale": "auto",
+  "advisor": {
+    "enabled": true,
+    "model": "claude-haiku-4-5",
+    "base_url": null,
+    "auth_token": null,
+    "always_call": false,
+    "max_transcript_tokens": 1500,
+    "timeout_ms": 8000
+  },
+  "rules_disabled": []
+}
