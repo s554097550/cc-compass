@@ -1,7 +1,7 @@
 {
   "name": "cc-compass",
-  "description": "Smart on-demand guide for Claude Code — type /cc-compass:cc-compass to get a native arrow-key picker with up to 4 contextual suggestions.",
-  "version": "0.2.0",
+  "description": "Smart on-demand guide for Claude Code — type /cc-compass:go to get a native arrow-key picker with up to 4 contextual suggestions.",
+  "version": "0.3.0",
   "author": {
     "name": "cc-compass contributors"
   },

@@ -1,6 +1,6 @@
 # cc-compass
 
-> Claude Code 智能向导。输入 `/cc-compass:cc-compass`，弹出方向键可选的菜单，最多 4 条贴合当前情境的建议——选中即执行。
+> Claude Code 智能向导。输入 `/cc-compass:go`，弹出方向键可选的菜单，最多 4 条贴合当前情境的建议——选中即执行。
 
 [English](./README.md) · 简体中文
 
@@ -72,16 +72,31 @@ git clone https://github.com/s554097550/cc-compass.git ~/code/cc-compass
 在 Claude Code 里:
 
 ```
-/cc-compass:cc-compass
+/cc-compass:go
 ```
 
 可以带额外上下文作为参数:
 
 ```
-/cc-compass:cc-compass 我刚改完 auth/,想准备提交
+/cc-compass:go 我刚改完 auth/,想准备提交
 ```
 
 之后用方向键 + 回车在菜单里选。选 **跳过**（或 "Other → skip"）取消。
+
+### 想再短一点？（可选）
+
+如果觉得 `/cc-compass:go` 还是有点长,可以给自己加个 alias。新建 `~/.claude/commands/c.md`:
+
+```markdown
+---
+description: cc-compass 快捷别名
+argument-hint: [额外上下文]
+---
+
+/cc-compass:go $ARGUMENTS
+```
+
+之后输 `/c` 就等价于 `/cc-compass:go`。这是你自己的本地配置,不会和插件冲突,插件更新也不会动它。
 
 ---
 

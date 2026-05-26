@@ -1,6 +1,6 @@
 # cc-compass
 
-> Smart on-demand guide for Claude Code. Type `/cc-compass:cc-compass` to get up to 4 contextual suggestions in a native arrow-key picker — pick one and Claude runs it.
+> Smart on-demand guide for Claude Code. Type `/cc-compass:go` to get up to 4 contextual suggestions in a native arrow-key picker — pick one and Claude runs it.
 
 English · [简体中文](./README.zh-CN.md)
 
@@ -72,16 +72,31 @@ git clone https://github.com/s554097550/cc-compass.git ~/code/cc-compass
 In Claude Code:
 
 ```
-/cc-compass:cc-compass
+/cc-compass:go
 ```
 
 You can pass extra context as an argument:
 
 ```
-/cc-compass:cc-compass 我刚改完 auth/，想准备提交
+/cc-compass:go 我刚改完 auth/，想准备提交
 ```
 
 Then use arrow keys + Enter in the picker. Choose **跳过** (or "Other → skip") to dismiss.
+
+### Make it even shorter (optional)
+
+If `/cc-compass:go` is still too long, define a personal alias. Create `~/.claude/commands/c.md`:
+
+```markdown
+---
+description: Shortcut for /cc-compass:go
+argument-hint: [extra context]
+---
+
+/cc-compass:go $ARGUMENTS
+```
+
+Now `/c` does the same thing. This is your personal config — not bundled with the plugin, so it won't conflict if the plugin updates.
 
 ---
 
