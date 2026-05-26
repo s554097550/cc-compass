@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "cc-compass",
-      "description": "Smart on-demand guide for Claude Code — analyzes situation and returns N suggestions with reasons.",
+      "description": "Smart on-demand guide for Claude Code — native arrow-key picker with up to 4 contextual suggestions.",
       "author": {
         "name": "cc-compass contributors"
       },

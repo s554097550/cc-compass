@@ -1,6 +1,6 @@
 # cc-compass
 
-> Smart on-demand guide for Claude Code. Type `/cc-compass:cc-compass` to get up to 5 contextual suggestions with reasons — commands run with a single keystroke, actions come with step-by-step instructions.
+> Smart on-demand guide for Claude Code. Type `/cc-compass:cc-compass` to get up to 4 contextual suggestions in a native arrow-key picker — pick one and Claude runs it.
 
 English · [简体中文](./README.zh-CN.md)
 
@@ -10,42 +10,27 @@ English · [简体中文](./README.zh-CN.md)
 
 Claude Code ships with many commands, skills, hooks, worktrees, compaction, plan mode, agents… The hard part for newcomers isn't *using* any one of them — it's **knowing which one to reach for right now**.
 
-cc-compass does not nag you in the background. It only runs **when you call it**. When invoked, Claude itself analyses the current situation and returns up to 5 suggestions, each with a concrete reason:
+cc-compass does not nag you in the background. It only runs **when you call it**. When invoked, Claude reads the current situation and pops up a native picker (arrow keys + Enter) with up to 4 suggestions, each labeled with a concrete reason:
 
 ```
-🧭 cc-compass 为你找到 5 个建议：
-
-[1] 命令：/compact
-    💡 原因：你已经聊了 ~90 轮，压缩可释放上下文。
-    👉 回复 1 立即执行
-
-[2] 命令：EnterWorktree
-    💡 原因：你提到要重构整个 auth 模块，隔离试验更安全。
-    👉 回复 2 立即执行
-
-[3] 命令：/commit
-    💡 原因：积累了不少改动，下一步要提交。
-    👉 回复 3 立即执行
-
-[4] 操作：用 Explore subagent 做广度搜索
-    💡 原因：要在 auth/ + middleware/ 多目录找 verify_token，子 agent 节省主上下文。
-    📋 步骤：
-       1. 跟 Claude 说："用 Explore agent 找 verify_token"
-       2. Claude 调 Agent 工具并指定 subagent_type=Explore
-       3. 精炼结果落回主对话，不污染上下文
-
-[5] 命令：/security-review
-    💡 原因：动到了认证逻辑，提交前过一遍安全检查。
-    👉 回复 5 立即执行
-
-回复数字（如 1 或 1,3）执行命令类建议；操作类按步骤手动操作；回复 skip 跳过。
+? 🧭 cc-compass 找到这几条建议，选哪个?
+❯ /compact — 释放上下文
+    会话已经较长，压缩可释放上下文容量
+  EnterWorktree — 隔离重构
+    你提到要重构 auth 模块，隔离试验更安全
+  /commit — 准备提交
+    积累了改动，下一步要 push
+  跳过
+    不执行任何建议
 ```
+
+Pick one, Claude runs it. No typing numbers, no copy-paste, no extra permission prompts.
 
 ---
 
 ## How it works
 
-cc-compass is **a single slash command** — no Node code, no build step, no API key, no dependencies. The entire plugin is `commands/cc-compass.md`: a prompt that tells Claude how to read the situation and pick suggestions from a built-in scenario catalog.
+cc-compass is **a single slash command** — no Node code, no build step, no API key, no dependencies. The entire plugin is `commands/cc-compass.md`: a prompt that tells Claude how to read the situation, pick suggestions from a built-in scenario catalog, and present them through the `AskUserQuestion` tool.
 
 Because Claude itself does the matching, the suggestions adapt to your actual conversation rather than a fixed regex list, and you don't pay any extra LLM cost beyond your normal session.
 
@@ -54,8 +39,6 @@ Because Claude itself does the matching, the suggestions adapt to your actual co
 ## Install
 
 ### Marketplace
-
-Add the marketplace and install:
 
 ```bash
 # In Claude Code:
@@ -98,10 +81,7 @@ You can pass extra context as an argument:
 /cc-compass:cc-compass 我刚改完 auth/，想准备提交
 ```
 
-Reply:
-- `1` — run suggestion 1
-- `1,3` — run 1 then 3
-- `skip` — dismiss
+Then use arrow keys + Enter in the picker. Choose **跳过** (or "Other → skip") to dismiss.
 
 ---
 
