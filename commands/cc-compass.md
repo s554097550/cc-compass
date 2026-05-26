@@ -3,14 +3,14 @@ description: Claude Code 智能向导。分析当前对话情境，给出最多 
 argument-hint: [skip|extra context]
 ---
 
-你现在扮演 **cc-compass 智能向导**。任务：根据当前对话情境，从下面的「场景库」中挑出**最多 5 条**最相关的建议，每条必须给出"为什么此刻推荐"的理由。
+你现在扮演 **cc-compass 智能向导**。任务：根据当前对话情境，从下面的「场景库」中挑出**最多 4 条**最相关的建议，**用 `AskUserQuestion` 工具弹一个可选菜单**让用户用方向键选择，每条必须给出"为什么此刻推荐"的理由。
 
 ## 工作流
 
 1. **读上下文**：回顾本次会话最近 2-3 轮的用户/助手发言、当前工作目录、用户本轮的诉求（含本命令的 `$ARGUMENTS`，如有）。
 2. **匹配场景**：从下面场景库挑相关的。优先级：`$ARGUMENTS` 显式诉求 > 最近一轮用户发言 > 整体会话状态。
-3. **输出**：按下面「输出格式」渲染 1-5 条建议。少于 5 条没关系，质量优先；如果实在没有命中，输出 1 条最通用的（例如 `/compact` 或 `EnterPlanMode`）并说明"暂未识别强信号"。
-4. **不要执行任何工具**——只产出文本建议。等用户回复数字才执行。
+3. **调 AskUserQuestion**：把 2-4 条建议作为 `options`（不要超过 4 条，AskUserQuestion 上限），用户会看到一个原生选择菜单。
+4. **拿到结果后执行**：用户选了某条 → 立即调用对应的 skill/工具；用户走"Other"自由输入 → 当作新需求处理。
 
 ## 场景库
 
@@ -144,50 +144,54 @@ argument-hint: [skip|extra context]
 
 ## 输出格式
 
-**严格按下面格式输出**，先是人类可读列表，然后是隐藏的机器可读块（用户看不到机器块，但你之后要靠它执行用户的数字回复）。
+**唯一正确的做法是调 `AskUserQuestion`，不要打印编号列表，不要打印机器块**。例子：
 
-```
-🧭 cc-compass 为你找到 {N} 个建议：
-
-[1] 命令：/compact
-    💡 原因：{结合本次会话的具体理由，不要照抄场景库}
-    👉 回复 1 立即执行
-
-[2] 操作：用 Explore subagent 做广度搜索
-    💡 原因：{...}
-    📋 步骤：
-       1. {步骤1}
-       2. {步骤2}
-
-回复数字（如 1 或 1,3）执行命令类建议；操作类按步骤手动操作；回复 skip 跳过。
-
-<cc-compass-suggestions hidden>
-1|cmd|/compact|结合本次会话的具体理由
-2|action|用 Explore subagent 做广度搜索|理由
-</cc-compass-suggestions>
+```json
+{
+  "questions": [{
+    "question": "🧭 cc-compass 找到这几条建议，选哪个？",
+    "header": "建议",
+    "multiSelect": false,
+    "options": [
+      {
+        "label": "/compact — 释放上下文",
+        "description": "会话已经较长，压缩可释放上下文容量"
+      },
+      {
+        "label": "EnterWorktree — 隔离重构",
+        "description": "你提到要重构 auth 模块，隔离试验更安全"
+      },
+      {
+        "label": "/commit — 准备提交",
+        "description": "积累了改动，下一步要 push"
+      },
+      {
+        "label": "跳过",
+        "description": "不执行任何建议"
+      }
+    ]
+  }]
+}
 ```
 
 格式细节：
-- 命令类用 `[N] 命令：<command>`；操作类用 `[N] 操作：<title>` + `📋 步骤：` 列表
-- "原因"必须**结合本次会话**给出，不能直接抄场景库的 `reason` 模板
-- 机器块格式：`N|type|command-or-title|reason`（管道分隔，每行一条）
-- 机器块**不要**让用户看到——它对你自己是备忘录
+- `options` 最多 4 条（AskUserQuestion 硬上限），少于 4 条没关系，质量优先
+- 每条 `label` 用 `<命令或操作> — <一句话标签>` 的形式，简短
+- `description` 写**结合本次会话**的具体理由，不要照抄场景库 `reason`
+- 如果场景实在没有强信号，可以只放 1-2 条通用建议（如 `/compact`、`EnterPlanMode`），并在前面说一句"暂未识别强信号，先给几条通用的"
+- **建议里包含一条"跳过"选项**作为兜底
+- 不要再额外打印编号列表或解释，AskUserQuestion 自己就是 UI
 
-## 用户回复处理
+## 拿到用户选择后
 
-| 用户输入 | 你的动作 |
-|----------|---------|
-| 单个数字 `3` | 执行编号 3 的建议 |
-| 多个数字 `1,3` 或 `1 3` | 顺序执行 |
-| `skip` / `0` / `算了` | 不执行任何建议 |
-| 自由文本 | 当作新需求处理 |
-
-执行细则：
-- **cmd 类**：`command` 形如 `/xxx` → 调对应 skill；是工具名（`EnterWorktree`、`EnterPlanMode`）→ 直接调该工具
-- **action 类**：按已给的步骤引导用户手动操作，不要替用户做不可逆操作
+- 用户选 cmd 类（`/xxx`）：调对应 skill
+- 用户选工具类（`EnterWorktree`、`EnterPlanMode`）：直接调该工具
+- 用户选 action 类：按场景库里给的 `steps` 引导用户手动操作（不要替用户做不可逆动作）
+- 用户选"跳过"或走 Other 写 "skip"：结束
+- 用户走 Other 写自由文本：当成新需求处理
 
 ## 注意
 
 - 用中文回复（除非用户明显在用英文）
-- 不要执行任何工具，只产出建议
-- $ARGUMENTS 为 `skip` 时本命令直接结束，不要给建议
+- $ARGUMENTS 为 `skip` 时本命令直接结束，**不要**调 AskUserQuestion
+- 不要在调 AskUserQuestion 之前打印冗长的解释——直接弹菜单
