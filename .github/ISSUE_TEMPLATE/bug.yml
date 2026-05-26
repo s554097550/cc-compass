@@ -5,33 +5,28 @@ body:
   - type: textarea
     attributes:
       label: 你做了什么 / What you did
-      description: 你在 Claude Code 里输入了什么？看到什么提示？
+      description: 你在 Claude Code 里输入了什么？当时的对话上下文是什么？
       placeholder: |
-        输入：/cc-compass
+        输入：/cc-compass:cc-compass
         上下文：刚改完 auth 模块，准备提交……
     validations:
       required: true
   - type: textarea
     attributes:
       label: 你期望什么 / What you expected
+      description: 应当出现哪条建议、或者更合理的建议是什么
     validations:
       required: true
   - type: textarea
     attributes:
       label: 实际发生 / What actually happened
-      description: 复制 stdout / stderr 原文
+      description: 复制 cc-compass 给出的建议原文（含理由）
     validations:
       required: true
   - type: input
     attributes:
-      label: 配置 / Config
-      description: 你的 cc-compass.config.json（去掉 auth_token）；或写"默认"
-    validations:
-      required: false
-  - type: input
-    attributes:
       label: 环境 / Environment
-      description: 操作系统、Claude Code 版本、Node 版本
-      placeholder: "macOS 14, Claude Code x.y.z, Node 20"
+      description: 操作系统、Claude Code 版本
+      placeholder: "macOS 14, Claude Code x.y.z"
     validations:
       required: false

@@ -1,102 +1,66 @@
 # Contributing to cc-compass
 
-Thanks for considering a contribution! cc-compass is built to be easy to extend — most useful contributions are **new scenarios** or **new rules**, both of which are 5-minute changes.
+Thanks for considering a contribution! cc-compass is intentionally tiny — a single markdown file (`commands/cc-compass.md`) is the whole product. The most useful contributions are **new scenarios**.
 
 ## Repo layout
 
 ```
-.claude-plugin/plugin.json   # plugin metadata
-skills/cc-compass/SKILL.md   # entry point — Claude reads this
-bin/compass.mjs              # main runner (Node.js, ESM)
-lib/
-  config.mjs                 # config loading & merge
-  context.mjs                # situational context
-  rules/index.mjs            # all rules in one file (intentional, for skimmability)
-  advisor.mjs                # Anthropic Messages API client
-  formatter.mjs              # output renderer
-  i18n.mjs                   # zh-CN / en strings
-scenarios.yaml               # candidate scenarios catalog (fed to advisor)
+.claude-plugin/
+  plugin.json              # plugin metadata
+  marketplace.json         # self-hosted marketplace entry
+commands/
+  cc-compass.md            # the entire plugin — frontmatter + prompt
+README.md / README.zh-CN.md
+LICENSE
 ```
 
-## Adding a scenario (no code needed)
+There is **no Node code, no build step, no dependencies**. The slash command body is a prompt that Claude Code reads and follows directly. That's the whole architecture.
 
-Just append to `scenarios.yaml`. Required: `id`, `type` (`cmd` or `action`), `trigger`, `reason`. For `cmd` add `command`; for `action` add `title` and optionally `steps`.
+## Adding a scenario
+
+Edit the `## 场景库` section of `commands/cc-compass.md` and append a YAML entry:
 
 ```yaml
 - id: my-thing
-  type: cmd
-  command: /my-skill
+  type: cmd                # or "action"
+  command: /my-skill       # required for cmd type
+  # title: 我的操作       # required for action type
   trigger: 用户提到 X / Y / Z
   reason: 一句话解释为什么这时候推荐
+  # steps:                 # optional, action type only
+  #   - 步骤1
+  #   - 步骤2
 ```
 
-The advisor uses `trigger` to decide when to suggest this, and `reason` as a fallback explanation. Keep both concrete — vague entries get suggested at random.
+Field reference:
 
-## Adding a rule (catches a scenario without an API call)
+| field | required | meaning |
+|-------|----------|---------|
+| `id` | yes | Stable identifier; used in the machine-readable block |
+| `type` | yes | `cmd` (one-keystroke) or `action` (manual steps) |
+| `command` | cmd only | A `/slash-command` or a tool name (e.g. `EnterWorktree`, `EnterPlanMode`) |
+| `title` | action only | Short title for the action |
+| `trigger` | yes | When this scenario applies (natural language; Claude reads this) |
+| `reason` | yes | Default reason template (Claude rewrites it to fit the actual session) |
+| `steps` | action only | Step-by-step manual instructions |
 
-Add an entry to the `RULES` array in `lib/rules/index.mjs`:
-
-```js
-{
-  id: 'my-thing',
-  priority: 60,
-  match: ctx => {
-    if (has(recent(ctx), '关键词1', '关键词2', 'keyword')) {
-      return {
-        type: 'cmd',
-        command: '/my-skill',
-        reason: '具体到你提到 X 的原因',
-      };
-    }
-    return null;
-  },
-},
-```
-
-Priorities are relative; 100 = high, 10 = low. Same `id` as the scenario keeps things deduplicated when the advisor also suggests it.
+Keep `trigger` and `reason` concrete. Vague entries get suggested at random.
 
 ## Testing locally
 
-```bash
-# Symlink into your Claude Code plugins directory
-ln -s /path/to/cc-compass ~/.claude/plugins/cc-compass
+1. Clone or symlink the repo into your Claude Code plugin cache, or install via the marketplace.
+2. Restart Claude Code.
+3. In a session, type `/cc-compass:cc-compass` and check that suggestions match the situation.
 
-# Restart Claude Code, then in a session:
-/cc-compass
-```
-
-Or run the entry directly to test rules/advisor without the full Claude Code loop:
-
-```bash
-CC_COMPASS_ADVISOR_ENABLED=false \
-CC_COMPASS_PROMPT="我想重构 auth 模块" \
-CC_COMPASS_RECENT="user: ...\n---\nassistant: ..." \
-node bin/compass.mjs
-```
-
-To test the advisor path:
-
-```bash
-ANTHROPIC_AUTH_TOKEN=sk-... \
-CC_COMPASS_MODEL=claude-haiku-4-5-20251001 \
-CC_COMPASS_PROMPT="..." \
-node bin/compass.mjs
-```
+Tip: add a deliberately mismatched prompt and verify the scenario you added doesn't get force-suggested out of context.
 
 ## PR guidelines
 
-- One scenario or one rule per PR is ideal — easier to review and discuss
-- For new rules, include a 1-line example prompt that should trigger it
-- Don't add dependencies — the plugin is intentionally zero-dep
-- Keep `reason` strings short (<= 80 chars) and concrete
-
-## Code style
-
-- ESM only (`.mjs`)
-- No build step
-- 2-space indent, single quotes, semicolons
-- Bilingual strings live in `lib/i18n.mjs` — please add both `zh-CN` and `en`
+- One scenario per PR is ideal — easier to review.
+- Keep `reason` strings short (<= 80 chars) and concrete.
+- Don't add dependencies. The plugin is intentionally zero-code.
+- If you change the workflow / output format / user-reply handling, explain why in the PR description.
 
 ## Filing issues
 
-Most useful: tell us **what you typed**, **what you got**, and **what you expected**. Bonus points for a reproducible prompt.
+Most useful: tell us **what you typed**, **what suggestions you got**, and **what you expected**. Reproducible prompts get fixed faster.

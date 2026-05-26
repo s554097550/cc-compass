@@ -1,6 +1,6 @@
 # cc-compass
 
-> Smart on-demand guide for Claude Code. Type `/cc-compass` to get up to N contextual suggestions with reasons — commands run with a single keystroke, actions come with step-by-step instructions.
+> Smart on-demand guide for Claude Code. Type `/cc-compass:cc-compass` to get up to 5 contextual suggestions with reasons — commands run with a single keystroke, actions come with step-by-step instructions.
 
 English · [简体中文](./README.zh-CN.md)
 
@@ -10,61 +10,76 @@ English · [简体中文](./README.zh-CN.md)
 
 Claude Code ships with many commands, skills, hooks, worktrees, compaction, plan mode, agents… The hard part for newcomers isn't *using* any one of them — it's **knowing which one to reach for right now**.
 
-cc-compass does not nag you in the background. It only runs **when you call it**, then analyses the current situation and returns up to N suggestions, each with a concrete reason:
+cc-compass does not nag you in the background. It only runs **when you call it**. When invoked, Claude itself analyses the current situation and returns up to 5 suggestions, each with a concrete reason:
 
 ```
-🧭 cc-compass found 5 suggestions for you:
+🧭 cc-compass 为你找到 5 个建议：
 
-[1] Command: /compact
-    💡 Why: Session is long (~92 turns / 48KB). Compacting frees context.
-    👉 Reply 1 to run
+[1] 命令：/compact
+    💡 原因：你已经聊了 ~90 轮，压缩可释放上下文。
+    👉 回复 1 立即执行
 
-[2] Command: EnterWorktree
-    💡 Why: You mentioned refactoring the whole auth module — isolate the experiment.
-    👉 Reply 2 to run
+[2] 命令：EnterWorktree
+    💡 原因：你提到要重构整个 auth 模块，隔离试验更安全。
+    👉 回复 2 立即执行
 
-[3] Command: /commit
-    💡 Why: Changes are piling up and you mentioned push.
-    👉 Reply 3 to run
+[3] 命令：/commit
+    💡 原因：积累了不少改动，下一步要提交。
+    👉 回复 3 立即执行
 
-[4] Action: Use Explore subagent to find token validation
-    💡 Why: It spans auth/ and middleware/. A subagent saves main context.
-    📋 Steps:
-       1. Say "use Explore agent to find verify_token"
-       2. Claude will call Agent with subagent_type=Explore
-       3. Distilled result lands without polluting your conversation
+[4] 操作：用 Explore subagent 做广度搜索
+    💡 原因：要在 auth/ + middleware/ 多目录找 verify_token，子 agent 节省主上下文。
+    📋 步骤：
+       1. 跟 Claude 说："用 Explore agent 找 verify_token"
+       2. Claude 调 Agent 工具并指定 subagent_type=Explore
+       3. 精炼结果落回主对话，不污染上下文
 
-[5] Command: /security-review
-    💡 Why: Auth-sensitive change — run a security pass before committing.
-    👉 Reply 5 to run
+[5] 命令：/security-review
+    💡 原因：动到了认证逻辑，提交前过一遍安全检查。
+    👉 回复 5 立即执行
 
-Reply with a number (e.g. 1 or 1,3) to run command suggestions; follow steps for action-type ones; reply skip to dismiss.
+回复数字（如 1 或 1,3）执行命令类建议；操作类按步骤手动操作；回复 skip 跳过。
 ```
+
+---
+
+## How it works
+
+cc-compass is **a single slash command** — no Node code, no build step, no API key, no dependencies. The entire plugin is `commands/cc-compass.md`: a prompt that tells Claude how to read the situation and pick suggestions from a built-in scenario catalog.
+
+Because Claude itself does the matching, the suggestions adapt to your actual conversation rather than a fixed regex list, and you don't pay any extra LLM cost beyond your normal session.
 
 ---
 
 ## Install
 
-### Marketplace (recommended)
+### Marketplace
 
-Add to `~/.claude/settings.json`:
+Add the marketplace and install:
+
+```bash
+# In Claude Code:
+/plugin marketplace add s554097550/cc-compass
+/plugin install cc-compass@cc-compass
+```
+
+Or add to `~/.claude/settings.json`:
 
 ```json
 {
   "enabledPlugins": {
-    "cc-compass@s554097550": true
+    "cc-compass@cc-compass": true
   }
 }
 ```
 
-Then install from the marketplace (exact command depends on your Claude Code version).
+Then restart Claude Code.
 
-### Local symlink (dev/try)
+### Local clone (dev)
 
 ```bash
 git clone https://github.com/s554097550/cc-compass.git ~/code/cc-compass
-ln -s ~/code/cc-compass ~/.claude/plugins/cc-compass
-# Restart Claude Code
+# Then point a marketplace entry at it, or copy into the plugin cache.
 ```
 
 ---
@@ -74,15 +89,13 @@ ln -s ~/code/cc-compass ~/.claude/plugins/cc-compass
 In Claude Code:
 
 ```
-/cc-compass
+/cc-compass:cc-compass
 ```
 
-Or natural language:
+You can pass extra context as an argument:
 
 ```
-What should I do next?
-Any suggestions?
-help me figure out what to do
+/cc-compass:cc-compass 我刚改完 auth/，想准备提交
 ```
 
 Reply:
@@ -92,89 +105,17 @@ Reply:
 
 ---
 
-## Configuration
+## Extending
 
-`~/.claude/cc-compass.config.json` (user) or `<project>/.claude/cc-compass.config.json` (project):
+Open `commands/cc-compass.md`, find the `## 场景库` section, and append a YAML entry. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full schema.
 
-```json
-{
-  "aliases": ["cc-compass", "compass"],
-  "fill_to_n": 5,
-  "locale": "auto",
-  "advisor": {
-    "enabled": true,
-    "model": null,
-    "base_url": null,
-    "auth_token": null,
-    "always_call": false,
-    "max_transcript_tokens": 1500,
-    "timeout_ms": 8000
-  },
-  "rules_disabled": []
-}
-```
-
-| Field | Default | Meaning |
-|-------|---------|---------|
-| `aliases` | `["cc-compass","compass","向导"]` | Trigger aliases |
-| `fill_to_n` | `5` | Max suggestions shown |
-| `locale` | `auto` | `zh-CN` / `en` / `auto` |
-| `advisor.enabled` | `true` | Call model to fill remaining slots when rules don't cover enough |
-| `advisor.model` | `null` (required when advisor is on) | Set to a model id your endpoint accepts, e.g. `claude-haiku-4-5-20251001` for the Anthropic API |
-| `advisor.base_url` | `null` → inherits `ANTHROPIC_BASE_URL` | Use a compatible third-party endpoint if you want |
-| `advisor.auth_token` | `null` → inherits `ANTHROPIC_AUTH_TOKEN` | API key |
-| `advisor.always_call` | `false` | Call the advisor even when rules already filled N (smarter but pricier) |
-| `advisor.timeout_ms` | `8000` | Advisor request timeout |
-| `rules_disabled` | `[]` | Rule ids you want to silence |
-
-Env-var overrides: `CC_COMPASS_FILL_TO_N`, `CC_COMPASS_MODEL`, `CC_COMPASS_ADVISOR_ENABLED`, etc.
-
-### Three modes
-
-| Mode | Config | Behavior |
-|------|--------|----------|
-| **Rules-only** (free, zero outbound) | `advisor.enabled: false` | Local rules only |
-| **Hybrid** (default) | `advisor.enabled: true, always_call: false` | Rules first, Haiku fills the gap |
-| **Model-first** | `advisor.enabled: true, always_call: true` | Always ask the advisor, rules as fallback |
+PRs adding scenarios are welcome.
 
 ---
 
 ## Privacy
 
-cc-compass runs **only on explicit invocation** — there is no background hook.
-
-In **rules-only mode**, no outbound requests are made at all.
-
-In **hybrid / model-first mode**, the advisor receives:
-- Recent transcript summary (truncated by `max_transcript_tokens`)
-- Current cwd's base name (not the full path)
-- Whether it's a git repo, whether CLAUDE.md exists
-- The scenario catalog (`scenarios.yaml`)
-
-It does **not** send: env vars (beyond what's needed for the API call), file contents, full paths, usernames, hostnames.
-
----
-
-## Troubleshooting
-
-| Symptom | Likely cause | Fix |
-|---------|--------------|-----|
-| `[cc-compass] advisor needs ANTHROPIC_AUTH_TOKEN` | No API key visible to the advisor | Set `ANTHROPIC_AUTH_TOKEN`, or `advisor.auth_token` in config, or `advisor.enabled: false` for rules-only mode |
-| `advisor HTTP 400: model not found` | The default model id isn't routable on your endpoint | Set `advisor.model` to a model your endpoint accepts |
-| `advisor response was not valid JSON: ...` | The advisor returned prose instead of JSON | Try a stronger model, or rerun — usually transient |
-| "No suggestions" right after `/cc-compass` | Rules didn't fire and advisor was disabled / unauthorized | Provide more context in your prompt, enable the advisor, or open an issue with the situation that should have matched |
-| Suggestion list shown but Claude doesn't execute reply `1` | The skill output was hidden or the assistant didn't keep the machine-readable block | Re-run `/cc-compass` and ensure your assistant follows `SKILL.md` |
-
----
-
-## Extending
-
-Adding a new suggestion = two edits:
-
-1. `lib/rules/index.mjs` — add a rule (optional, for the rule layer fallback)
-2. `scenarios.yaml` — add a scenario entry (required, feeds the advisor)
-
-PRs adding scenarios are welcome!
+cc-compass runs **only on explicit invocation**. It makes no outbound network requests. The plugin is a markdown prompt; Claude Code reads it locally and feeds it to the model handling your current session.
 
 ---
 
